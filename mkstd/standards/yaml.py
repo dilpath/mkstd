@@ -1,0 +1,33 @@
+from typing import Any
+import json
+import yaml
+from pydantic import BaseModel
+
+from .json import JsonStandard
+
+
+class YamlStandard(JsonStandard):
+    """The YAML standard.
+
+    Use this to create a standard in the YAML file format.
+
+    See :class:`Standard` for inherited methods and attributes.
+    
+    N.B.: Schema are generated in the JSON schema format.
+    https://en.wikipedia.org/wiki/JSON#Metadata_and_schema
+
+    Attributes:
+        dump_kwargs:
+            Keyword arguments that will be passed to `json.dumps` and
+            `yaml.dump`. Defaults to setting the indentation of generated
+            schema and data files to 4 spaces.
+    """
+    def format_data(self, data: BaseModel):
+        # TODO handle custom `model_dump` kwargs?
+        return yaml.safe_dump(data.model_dump(), **self.dump_kwargs)
+
+    def load_data(self, filename: str):
+        with open(filename, 'r') as f:
+            data = yaml.safe_load(f)
+        return self.model.parse_obj(data)
+

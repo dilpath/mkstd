@@ -1,12 +1,30 @@
+from typing import Any
+import numpy as np
 import xmlschema
 import xml.dom.minidom
-from pydantic import BaseModel
-import pydantic_numpy
+from pydantic import BaseModel, Field
 
 from .standard import Standard
+from ..types.array import array_to_string, string_to_array, is_array_type
 
 
 class XmlStandard(Standard):
+    """The XML standard.
+
+    Use this to create a standard in the JSON file format.
+
+    See :class:`Standard` for inherited methods and attributes.
+
+    Schema are generated in the XML schema (XSD) format.
+
+    Attributes:
+        custom_types:
+            Definitions of custom types in the schema format.
+        custom_type_names:
+            The names of the custom types.
+        elements:
+            XML elements of the fields in the data model.
+    """
     # TODO use jinja?
     header = """<?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -17,59 +35,109 @@ class XmlStandard(Standard):
         super().__init__(*args, **kwargs)
         self.custom_types = []
         self.custom_type_names = []
-        self.elements = []
-        
-        self.parse_model()
+        self.elements = self._generate_elements()
 
-    def parse_model(self):
+    def _generate_elements(self) -> list[str]:
+        """Generate XML elements for the fields of the data model.
+
+        Returns:
+            The XML elements.
+        """
+        elements = []
         for name, field in self.model.model_fields.items():
-            self.add_element(self.make_element(name=name, field=field))
+            element = self._get_element(name=name, field=field)
+            elements.append(element)
+        return elements
 
-    def create_type(self, base_type, ge=None, le=None):
+    def _get_numeric_type(self, base_type: type[int] | type[float], ge: int | float = None, le: int | float = None) -> str:
+        """Get the XML type name of a (constrained) numeric value.
+
+        The type is created if no standard types are suitable.
+
+        Args:
+            base_type:
+                The base Python type of the number.
+            ge:
+                The lower bound (inclusive); "greater than or equal to".
+            le:
+                The upper bound (inclusive); "less than or equal to".
+
+        Returns:
+            The XML type name.
+        """
         if ge is not None:
             if ge == 0 and base_type == int:
                 return "positiveInteger"
             elif base_type in [int, float]:
-                return self.add_type(base_type=base_type, ge=ge, le=le)
+                return self._generate_numeric_type(base_type=base_type, ge=ge, le=le)
             else:
-                raise ValueError(f"unsupported base_type {base_type}. please request")
-    
+                raise NotImplementedError(f"Base type `{base_type}`.")
         else:
-            raise ValueError("not implemented. please request.")
-    
-    
-    def get_type(self, field):
+            raise NotImplementedError(f"`ge is None`.")
+
+    def _get_type(self, field: Field) -> str:
+        """Get the XML type name of a data model field.
+
+        Args:
+            field:
+                The field.
+
+        Returns:
+            The XML type name.
+        """
+
         if field.annotation == int:
             xsd_type = "integer"
             for metadatum in field.metadata:
                 if type(metadatum).__name__ == "Ge":
-                    xsd_type = self.create_type(base_type=field.annotation, ge=metadatum.ge)
+                    xsd_type = self._get_numeric_type(base_type=field.annotation, ge=metadatum.ge)
                 else:
-                    raise ValueError(f"Unsupported field metadata: {metadatum}. Please request.")
-        elif field.annotation == str:
+                    raise NotImplementedError(f"Field metadata contains {metadatum}.")
+        elif field.annotation in (str, list[str]) or is_array_type(field.annotation):
             xsd_type = "string"
         elif field.annotation == float:
             xsd_type = "decimal"
             for metadatum in field.metadata:
                 if type(metadatum).__name__ == "Ge":
-                    xsd_type = self.create_type(base_type=field.annotation, ge=metadatum.ge)
+                    xsd_type = self._get_numeric_type(base_type=field.annotation, ge=metadatum.ge)
                 else:
-                    raise ValueError(f"Unsupported field metadata: {metadatum}. Please request.")
+                    raise NotImplementedError(f"Field metadata contains {metadatum}.")
+        else:
+            raise NotImplementedError(f"Field type `{field.annotation}`.")
         return ("" if xsd_type in self.custom_type_names else "xs:") + xsd_type
 
-    def make_element(self, name, field):
-        if field.annotation in (int, float, str):
-            element = f"""<xs:element name="{name}" type="{self.get_type(field)}"/>"""
-        elif field.annotation == (pydantic_numpy.typing.NpNDArray).__origin__:
-            element = f"""<xs:element name="{name}" type="xs:string"/>"""
+    def _get_element(self, name: str, field: Field) -> str:
+        """Get an XML element for a field.
+
+        Args:
+            name:
+                The name of the XML element.
+            field:
+                The field.
+
+        Returns:
+            The XML element.
+        """
+        if field.annotation in (int, float, str, list[str]) or is_array_type(field.annotation):
+            element = f"""<xs:element name="{name}" type="{self._get_type(field)}"/>"""
         else:
-            raise ValueError(f"Unsupported field type: {field.annotation}. Please request")
+            raise NotImplementedError(f"Field type `{field.annotation}`.")
         return element
 
-    def add_element(self, element):
-        self.elements.append(element)
+    def _generate_numeric_type(self, base_type: type[int] | type[float], ge: int | float = None, le: int | float = None) -> str:
+        """Generate an XML type of a (constrained) numeric type.
 
-    def add_type(self, base_type, ge=None, le=None):
+        Args:
+            base_type:
+                The base Python type of the number.
+            ge:
+                The lower bound (inclusive); "greater than or equal to".
+            le:
+                The upper bound (inclusive); "less than or equal to".
+
+        Returns:
+            The name of the generated XML type.
+        """
         base_type_xsd = "integer" if base_type == int else "decimal"
         custom_type_name = base_type_xsd + "Ge" + str(ge)
         if custom_type_name in self.custom_type_names:
@@ -95,13 +163,51 @@ class XmlStandard(Standard):
             if line.strip()
         ) + "\n"
 
-    def parse_data(self, data: BaseModel):
+    def format_data(self, data: BaseModel):
         xs = xmlschema.XMLSchema(self.get_schema())
-        etree = xs.encode(data.model_dump())
+        dump = data.model_dump()
+        _apply_converters(dump=dump, model=self.model)
+        etree = xs.encode(dump)
         return xmlschema.etree_tostring(etree)
 
     def load_data(self, filename: str):
         with open(filename, 'r') as f:
             data = xmlschema.XMLSchema(self.get_schema()).decode(f.read())
+        _apply_deconverters(dump=data, model=self.model)
         return self.model.parse_obj(data)
 
+
+def _apply_converters(dump: dict[str, Any], model: type[BaseModel]) -> None:
+    """Convert Python types for serialization.
+
+    Args:
+        dump:
+            The data, e.g. the output from :func:`BaseModel.model_dump`.
+        model:
+            The data model.
+    """
+    _convert_iterables(dump=dump, model=model)
+
+
+def _apply_deconverters(dump: dict[str, Any], model: type[BaseModel]) -> None:
+    """Convert serialized types for deserialization.
+
+    Args:
+        dump:
+            The data, e.g. the output from :func:`BaseModel.model_dump`.
+        model:
+            The data model.
+    """
+    _deconvert_iterables(dump=dump, model=model)
+
+
+def _convert_iterables(dump: dict[str, Any], model: type[BaseModel]) -> None:
+    for field_name, field in model.model_fields.items():
+        if field.annotation == list[str] or is_array_type(field.annotation):
+            dump[field_name] = array_to_string(field_name=field_name, array=dump[field_name], model=model)
+
+
+def _deconvert_iterables(dump: dict[str, Any], model: type[BaseModel]) -> None:
+    for field_name, field in model.model_fields.items():
+        if field.annotation == list[str] or is_array_type(field.annotation):
+            dump[field_name] = string_to_array(field_name=field_name, array=dump[field_name], model=model)

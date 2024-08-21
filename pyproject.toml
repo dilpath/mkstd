@@ -17,13 +17,12 @@ classifiers = [
 ]
 keywords = ["standard", "hdf5", "json", "xml", "yaml"]
 dependencies = [
-    "pydantic",
-    "hdfdict",  #"hdfdict@git+https://github.com/SiggiGue/hdfdict.git",
-    "pydantic-yaml",
-    "pydantic-xml[lxml]",
-    "pydantic-xmlmodel",
-    "xmlschema",
-    "h5json",  # "h5json@git+https://github.com/HDFGroup/hdf5-json.git",  # FIXME may need to clone
+    "pydantic>=2.7.4",
+    "hdfdict@git+https://github.com/SiggiGue/hdfdict"
+    "pydantic_numpy>=6.0.0",
+    "xmlschema>=3.3.1",
+    "pyyaml>=6.0.2",
+    "oyaml>=1.0",
 ]
 requires-python = ">=3.8"
 
