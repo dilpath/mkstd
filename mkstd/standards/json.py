@@ -1,5 +1,6 @@
-from typing import Any
 import json
+from typing import Any
+
 from pydantic import BaseModel
 
 from .standard import Standard
@@ -20,26 +21,31 @@ class JsonStandard(Standard):
             Keyword arguments that will be passed to `json.dumps`. Defaults to
             setting the indentation of generated schema files to 4 spaces.
     """
+
     default_dump_kwargs = {"indent": 4}
 
-    def __init__(self, *args, dump_kwargs: dict[str, Any] = None, **kwargs):
+    def __init__(
+        self, *args, dump_kwargs: dict[str, Any] = None, **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
 
         self.dump_kwargs = JsonStandard.default_dump_kwargs
         if dump_kwargs is not None:
             self.dump_kwargs = dump_kwargs
 
-    def get_schema(self):
+    def get_schema(self) -> str:
+        """See :class:`Standard`."""
         return json.dumps(
             self.model.model_json_schema(mode="serialization"),
             **self.dump_kwargs,
         )
 
-    def format_data(self, data: BaseModel):
+    def format_data(self, data: BaseModel) -> str:
+        """See :class:`Standard`."""
         return data.model_dump_json(**self.dump_kwargs)
 
-    def load_data(self, filename: str):
-        with open(filename, 'r') as f:
+    def load_data(self, filename: str) -> BaseModel:
+        """See :class:`Standard`."""
+        with open(filename) as f:
             data = json.load(f)
         return self.model.parse_obj(data)
-

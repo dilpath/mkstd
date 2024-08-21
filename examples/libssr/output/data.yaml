@@ -1,3 +1,15 @@
+ssr_level: 1
+ssr_version: 3
+variable_names:
+- v1
+- v2
+- v3
+simulation_times:
+- 0.0
+- 3.3333333333333335
+- 6.666666666666667
+- 10.0
+sample_size: 100000
 ecf_evals:
 -   -   -   - 0.0
             - 0.0
@@ -119,7 +131,6 @@ ecf_evals:
             - 0.0
         -   - 0.0
             - 0.0
-ecf_nval: 5
 ecf_tval:
 -   - 1.0
     - 1.0
@@ -133,18 +144,7 @@ ecf_tval:
 -   - 1.0
     - 1.0
     - 1.0
+ecf_nval: 5
 error_metric_mean: 0.5
 error_metric_stdev: 0.2
-sample_size: 100000
 sig_figs: 5
-simulation_times:
-- 0.0
-- 3.3333333333333335
-- 6.666666666666667
-- 10.0
-ssr_level: 1
-ssr_version: 3
-variable_names:
-- v1
-- v2
-- v3

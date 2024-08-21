@@ -42,4 +42,3 @@ pajv validate -s output/mkstd_generated_schema_yaml.json -d output/data.yaml
 There is currently no standard available for the specification of HDF5 schemas. Hence, the HDF5 files produced by `mkstd` can only be validated with `mkstd`.
 
 There is a [format for HDF5 that enables interconversion with JSON](https://github.com/HDFGroup/hdf5-json). This is out-of-scope.
-

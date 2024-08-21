@@ -1,4 +1,5 @@
 {
+    "description": "Data standard for libSSR.",
     "properties": {
         "ssr_level": {
             "default": null,

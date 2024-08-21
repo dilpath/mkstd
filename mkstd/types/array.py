@@ -1,15 +1,20 @@
-from operator import itemgetter, mul
+import inspect
 from functools import reduce
-from typing import Annotated, Iterable, Any
-from pydantic import BeforeValidator, PlainSerializer, WithJsonSchema, BaseModel
+from operator import mul
+from typing import Annotated, Any, Iterable
+
 import numpy as np
-from io import StringIO
-import pydantic_numpy
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    PlainSerializer,
+    WithJsonSchema,
+)
+from pydantic_numpy.helper.annotation import NpArrayPydanticAnnotation
 
-
-DTYPE = 'dtype'
-FORMAT = 'fmt'
-ORDER = 'C'
+DTYPE = "dtype"
+FORMAT = "fmt"
+ORDER = "C"
 
 
 SHAPE_ARRAY_DELIMITER = "#"
@@ -22,15 +27,30 @@ DELIMITER = ","
 
 
 def get_dtype(field_name: str, model: BaseModel) -> type:
+    """Get the data type of elements in an array field of a model.
+
+    Args:
+        field_name:
+            The name of the array field of the model.
+        model:
+            The model.
+
+    Returns:
+        The data type.
+    """
     field_type = model.model_fields[field_name].annotation
     if field_type in (list[str],):
         return str
-    elif field_type.__name__ == "ndarray" and issubclass(field_type.__args__[1].__args__[0], np.floating):
+    elif field_type.__name__ == "ndarray" and issubclass(
+        field_type.__args__[1].__args__[0], np.floating
+    ):
         return float
-    raise NotImplementedError(f'Field type: `{field_type}`.')
+    raise NotImplementedError(f"Field type: `{field_type}`.")
 
 
-def array_to_string(field_name: str, array: Iterable[Any], model: type[BaseModel]) -> str:
+def array_to_string(
+    field_name: str, array: Iterable[Any], model: type[BaseModel]
+) -> str:
     """Convert the value of an array field from an array to a string.
 
     Args:
@@ -44,18 +64,23 @@ def array_to_string(field_name: str, array: Iterable[Any], model: type[BaseModel
     Returns:
         The string.
     """
-    io_array_string = StringIO()
     dtype = get_dtype(field_name=field_name, model=model)
     array = np.asarray(array)
 
     # Convert array to "shape array" string.
     shape = [str(s) for s in array.shape]
-    array = [*shape, SHAPE_ARRAY_DELIMITER, *[FORMATS[dtype] % value for value in array.flatten(order=ORDER)]]
+    array = [
+        *shape,
+        SHAPE_ARRAY_DELIMITER,
+        *[FORMATS[dtype] % value for value in array.flatten(order=ORDER)],
+    ]
 
     return DELIMITER.join(array)
 
 
-def string_to_array(field_name: str, array: str, model: type[BaseModel]) -> np.ndarray:
+def string_to_array(
+    field_name: str, array: str, model: type[BaseModel]
+) -> np.ndarray:
     """Convert the value of an array field from a string to an array.
 
     Args:
@@ -69,18 +94,19 @@ def string_to_array(field_name: str, array: str, model: type[BaseModel]) -> np.n
     Returns:
         The array.
     """
-    io_array_string = StringIO(array)
     dtype = get_dtype(field_name=field_name, model=model)
 
     # Convert "shape array" string to array.
     array_str = array.split(DELIMITER)
     shape = []
-    for start_index, value_str in enumerate(array_str):
+    for start_index, value_str in enumerate(array_str):  # noqa: B007
         if value_str == SHAPE_ARRAY_DELIMITER:
             break
         shape.append(int(value_str))
     n_values = reduce(mul, shape, 1)
-    array = np.array(array_str[start_index+1:start_index+1+n_values], dtype=dtype).reshape(shape)
+    array = np.array(
+        array_str[start_index + 1 : start_index + 1 + n_values], dtype=dtype
+    ).reshape(shape)
 
     return array
 
@@ -114,15 +140,9 @@ def list_to_array(list_: list) -> np.ndarray:
 # TODO array equality checks for model0 == model1 checks
 
 
-from typing import Annotated, Any, Union
-
-import numpy as np
-from pydantic import FilePath
-
-from pydantic_numpy.helper.annotation import NpArrayPydanticAnnotation
-from pydantic_numpy.model import MultiArrayNumpyFile
-
-def get_array_type(dtype: type, dimensions: int, strict_dtype: bool = False) -> type:
+def get_array_type(
+    dtype: type, dimensions: int, strict_dtype: bool = False
+) -> type:
     """Get a customized array type.
 
     Args:
@@ -145,12 +165,11 @@ def get_array_type(dtype: type, dimensions: int, strict_dtype: bool = False) -> 
         ),
         BeforeValidator(list_to_array),
         PlainSerializer(array_to_list, return_type=list),
-        WithJsonSchema({'type': 'array'}, mode='serialization'),
+        WithJsonSchema({"type": "array"}, mode="serialization"),
     ]
 
-import inspect
 
-def is_array_type(type_) -> bool:
+def is_array_type(type_: type) -> bool:
     """Identify arrays.
 
     Args:

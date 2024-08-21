@@ -18,11 +18,20 @@ classifiers = [
 keywords = ["standard", "hdf5", "json", "xml", "yaml"]
 dependencies = [
     "pydantic>=2.7.4",
-    "hdfdict@git+https://github.com/SiggiGue/hdfdict"
+
+    # Type: array
     "pydantic_numpy>=6.0.0",
-    "xmlschema>=3.3.1",
+
+    # Format: HDF5
+    "hdfdict@git+https://github.com/SiggiGue/hdfdict",
+
+    # Format: YAML
     "pyyaml>=6.0.2",
     "oyaml>=1.0",
+
+    # Format: XML
+    "defusedxml>=0.7.1",
+    "xmlschema>=3.3.1",
 ]
 requires-python = ">=3.8"
 
@@ -34,3 +43,49 @@ Homepage = "https://github.com/dilpath/mkstd"
 
 [tool.setuptools.dynamic]
 version = {attr = "mkstd.__version__"}
+
+[tool.ruff]
+line-length = 79
+extend-include = ["*.ipynb"]
+lint.ignore = [
+    "ANN002",
+    "ANN003",
+    "ANN101",
+    "B027",
+    "D100",
+    "D105",
+    "D107",
+    "D202",
+    "E501",
+    "F403",
+    "F405",
+    "D413"
+]
+lint.select = [
+    "F",  # Pyflakes
+    "I",  # isort
+    "D",  # pydocstyle (PEP 257)
+    "S",  # flake8-bandit
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "T20",  # flake8-print
+    "W",  # pycodestyle Warnings
+    "E",  # pycodestyle Errors
+    "UP",  # pyupgrade
+    "ANN",  # flakes-annotations
+]
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = [
+    "F401",
+    "D205",
+]
+"test/*" = [
+    "T201",
+    "S101",
+    "D",
+]
+"*.ipynb" = [
+    "T20", "E402", "D"
+]

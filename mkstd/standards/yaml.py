@@ -1,6 +1,4 @@
-from typing import Any
-import json
-import yaml
+import oyaml as yaml
 from pydantic import BaseModel
 
 from .json import JsonStandard
@@ -12,7 +10,7 @@ class YamlStandard(JsonStandard):
     Use this to create a standard in the YAML file format.
 
     See :class:`Standard` for inherited methods and attributes.
-    
+
     N.B.: Schema are generated in the JSON schema format.
     https://en.wikipedia.org/wiki/JSON#Metadata_and_schema
 
@@ -22,12 +20,14 @@ class YamlStandard(JsonStandard):
             `yaml.dump`. Defaults to setting the indentation of generated
             schema and data files to 4 spaces.
     """
-    def format_data(self, data: BaseModel):
+
+    def format_data(self, data: BaseModel) -> str:
+        """See :class:`Standard`."""
         # TODO handle custom `model_dump` kwargs?
         return yaml.safe_dump(data.model_dump(), **self.dump_kwargs)
 
-    def load_data(self, filename: str):
-        with open(filename, 'r') as f:
+    def load_data(self, filename: str) -> BaseModel:
+        """See :class:`Standard`."""
+        with open(filename) as f:
             data = yaml.safe_load(f)
         return self.model.parse_obj(data)
-

@@ -1,7 +1,7 @@
 from __future__ import annotations
-from typing import Any
-from pathlib import Path
-from abc import abstractmethod, ABC
+
+from abc import ABC, abstractmethod
+
 from pydantic import BaseModel
 
 
@@ -19,7 +19,8 @@ class Standard(ABC):
         model:
             The data model.
     """
-    def __init__(self, model: type[BaseModel]):
+
+    def __init__(self, model: type[BaseModel]) -> None:
         self.model = model
 
     @abstractmethod
@@ -54,7 +55,7 @@ class Standard(ABC):
         schema = self.get_schema()
         if schema[-1] != "\n":
             schema += "\n"
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write(schema)
 
     def save_data(self, data: BaseModel, filename: str) -> None:
@@ -69,7 +70,7 @@ class Standard(ABC):
         content = self.format_data(data)
         if content[-1] != "\n":
             content += "\n"
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write(content)
 
     @abstractmethod

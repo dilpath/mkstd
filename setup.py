@@ -1,22 +1,19 @@
-import os
 import re
 
 from setuptools import setup
 
 
-def read(fname):
+def read(fname: str) -> str:
     """Read a file."""
-    return open(fname).read()
+    with open(fname) as f:
+        content = f.read()
+    return content
 
 
-def absolute_links(txt):
+def absolute_links(txt: str) -> str:
     """Replace relative github links by absolute links."""
-    raw_base = (
-        "(https://raw.githubusercontent.com/dilpath/mkstd/default/"
-    )
-    embedded_base = (
-        "(https://github.com/dilpath/mkstd/tree/default/"
-    )
+    raw_base = "(https://raw.githubusercontent.com/dilpath/mkstd/default/"
+    embedded_base = "(https://github.com/dilpath/mkstd/tree/default/"
     # iterate over links
     for var in re.findall(r"\[.*?\]\((?!http).*?\)", txt):
         if re.match(r".*?.(png|svg)\)", var):
@@ -35,4 +32,3 @@ setup(
     long_description=absolute_links(read("README.md")),
     long_description_content_type="text/markdown",
 )
-
