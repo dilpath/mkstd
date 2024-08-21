@@ -9,7 +9,10 @@ from .standard import Standard
 
 np.string_ = np.bytes_
 
-import hdfdict  # noqa: E402
+try:
+    import hdfdict  # noqa: E402
+except ImportError:
+    hdfdict = None
 
 
 class Hdf5Standard(Standard):

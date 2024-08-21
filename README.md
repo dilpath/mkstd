@@ -6,6 +6,9 @@ Make standards that can be exported/imported/validated via HDF5/JSON/XML/YAML.
 # Installation
 ```bash
 pip install mkstd
+
+# For HDF5 support
+pip install hdfdict@git+https://github.com/SiggiGue/hdfdict
 ```
 
 # Intended use

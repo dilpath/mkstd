@@ -23,7 +23,8 @@ dependencies = [
     "pydantic_numpy>=6.0.0",
 
     # Format: HDF5
-    "hdfdict@git+https://github.com/SiggiGue/hdfdict",
+    # TODO try itsh5py for valid PyPI dependency?
+    # "hdfdict@git+https://github.com/SiggiGue/hdfdict",
 
     # Format: YAML
     "pyyaml>=6.0.2",
