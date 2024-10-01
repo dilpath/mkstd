@@ -11,6 +11,8 @@ from mkstd.standards import (
 )
 from mkstd.types.array import get_array_type
 
+# Stage 1: define a data model, then make standards from it.
+
 
 class SSRData(BaseModel):
     """Data standard for libSSR."""
@@ -120,6 +122,21 @@ class SSRData(BaseModel):
         return self
 
 
+hdf5_standard = Hdf5Standard(model=SSRData)
+hdf5_standard.save_schema("output/schema_hdf5.json")
+
+json_standard = JsonStandard(model=SSRData)
+json_standard.save_schema("output/schema.json")
+
+xml_standard = XmlStandard(model=SSRData)
+xml_standard.save_schema("output/schema.xsd")
+
+yaml_standard = YamlStandard(model=SSRData)
+yaml_standard.save_schema("output/schema_yaml.json")
+
+# Stage 2: use standards to validate/import/export data.
+# Here, data are validated via `mkstd`. Third-party validators
+# can also be used.
 data = SSRData.parse_obj(
     {
         "ssr_level": 1,
@@ -136,22 +153,14 @@ data = SSRData.parse_obj(
     }
 )
 
-xml_standard = XmlStandard(model=SSRData)
-xml_standard.save_schema("output/schema.xsd")
 xml_standard.save_data(data=data, filename="output/data.xml")
 data_xml = xml_standard.load_data(filename="output/data.xml")
 
-json_standard = JsonStandard(model=SSRData)
-json_standard.save_schema("output/schema.json")
 json_standard.save_data(data=data, filename="output/data.json")
 data_json = json_standard.load_data(filename="output/data.json")
 
-yaml_standard = YamlStandard(model=SSRData)
-yaml_standard.save_schema("output/schema_yaml.json")
 yaml_standard.save_data(data=data, filename="output/data.yaml")
 data_yaml = yaml_standard.load_data(filename="output/data.yaml")
 
-hdf5_standard = Hdf5Standard(model=SSRData)
-hdf5_standard.save_schema("output/schema_hdf5.json")
 hdf5_standard.save_data(data=data, filename="output/data.hdf5")
 data_hdf5 = hdf5_standard.load_data(filename="output/data.hdf5")
