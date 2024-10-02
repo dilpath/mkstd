@@ -136,10 +136,15 @@ class XmlStandard(Standard):
         Returns:
             The XML element.
         """
+        attr_name = f' name="{name}"'
+        attr_type = f' type="{self._get_type(field)}"'
+        attr_requirement = ""
+        if not field.is_required():
+            attr_requirement = ' minOccurs="0"'
         if field.annotation in (int, float, str, list[str]) or is_array_type(
             field.annotation
         ):
-            element = f"""<xs:element name="{name}" type="{self._get_type(field)}"/>"""
+            element = f"<xs:element{attr_name}{attr_type}{attr_requirement}/>"
         else:
             raise NotImplementedError(f"Field type `{field.annotation}`.")
         return element
