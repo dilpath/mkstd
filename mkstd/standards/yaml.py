@@ -21,6 +21,8 @@ class YamlStandard(JsonStandard):
             schema and data files to 4 spaces.
     """
 
+    default_dump_kwargs = {"indent": 2}
+
     def format_data(self, data: BaseModel) -> str:
         """See :class:`Standard`."""
         # TODO handle custom `model_dump` kwargs?
