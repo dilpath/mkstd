@@ -34,7 +34,7 @@ The [XSD format](https://en.wikipedia.org/wiki/XML_Schema_%28W3C%29) is used. Se
 The [official JSON schema](https://en.wikipedia.org/wiki/JSON#Metadata_and_schema) format is used. Search the web for `validate json data against schema`.
 
 ## YAML
-There is no official YAML schema format, so typically JSON schemas are used with data stored in the YAML format. `mkstd` takes this approach too. Hence, tools that can validate YAML data against a JSON schema can be used, without an `mkstd` installation.
+There is no official YAML schema format, so [YAML data is typically validated against JSON schemas](https://json-schema-everywhere.github.io/yaml). `mkstd` takes this approach too. Hence, tools that can validate YAML data against a JSON schema can be used, without an `mkstd` installation.
 
 For example, [the `pajv` tool](https://github.com/json-schema-everywhere/pajv) can be used to validate YAML data against a JSON schema, without `mkstd`.
 ```bash
