@@ -34,12 +34,14 @@ The [XSD format](https://en.wikipedia.org/wiki/XML_Schema_%28W3C%29) is used. Se
 The [official JSON schema](https://en.wikipedia.org/wiki/JSON#Metadata_and_schema) format is used. Search the web for `validate json data against schema`.
 
 ## YAML
-Commonly, YAML schemas are actually specified in the same way as JSON schemas. `mkstd` does this too. Hence, tools that can validate YAML data against a JSON schema can be used, without an `mkstd` installation.
+There is no official YAML schema format, so typically JSON schemas are used with data stored in the YAML format. `mkstd` takes this approach too. Hence, tools that can validate YAML data against a JSON schema can be used, without an `mkstd` installation.
 
-For example, [this tool](https://github.com/json-schema-everywhere/pajv) can be used to validate YAML data against a JSON schema, without `mkstd`.
+For example, [the `pajv` tool](https://github.com/json-schema-everywhere/pajv) can be used to validate YAML data against a JSON schema, without `mkstd`.
 ```bash
-pajv validate -s output/mkstd_generated_schema_yaml.json -d output/data.yaml
+pajv validate -s output/mkstd_generated_schema.yaml -d output/data.yaml
 ```
+
+By default, `mkstd` stores the schemas for YAML standards in YAML too.
 
 ## HDF5
 There is currently no standard available for the specification of HDF5 schemas. Hence, the HDF5 files produced by `mkstd` can only be validated with `mkstd`.
