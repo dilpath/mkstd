@@ -1,6 +1,6 @@
 <ssrdata>
-    <ssr_level>1</ssr_level>
-    <ssr_version>3</ssr_version>
+    <efect_level>1</efect_level>
+    <efect_version>3</efect_version>
     <variable_names>3,#,v1,v2,v3</variable_names>
     <simulation_times>4,#,0.000000000000000000e+00,3.333333333333333481e+00,6.666666666666666963e+00,1.000000000000000000e+01</simulation_times>
     <sample_size>100000</sample_size>

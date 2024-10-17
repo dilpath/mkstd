@@ -1,5 +1,5 @@
 """mkstd: the standard maker."""
-__version__ = "0.0.3"
+__version__ = "0.0.5"
 
 
 from .standards import *
