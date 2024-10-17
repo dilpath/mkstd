@@ -1,0 +1,115 @@
+$defs:
+  ExtensionYaml:
+    additionalProperties: true
+    description: Define a PEtab extension.
+    properties:
+      version:
+        pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
+        title: Version
+        type: string
+    required:
+    - version
+    title: ExtensionYaml
+    type: object
+  ModelFile:
+    description: Define the file location and file format of a model.
+    properties:
+      filename:
+        title: Filename
+        type: string
+      language:
+        anyOf:
+        - const: sbml
+          enum:
+          - sbml
+          type: string
+        - const: cellml
+          enum:
+          - cellml
+          type: string
+        - const: bngl
+          enum:
+          - bngl
+          type: string
+        - const: pysb
+          enum:
+          - pysb
+          type: string
+        title: Language
+    required:
+    - filename
+    - language
+    title: ModelFile
+    type: object
+  ProblemYaml:
+    description: Define the files for a single parameter estimation problem.
+    properties:
+      model_files:
+        patternProperties:
+          ^[a-zA-Z_]\\w*$:
+            $ref: '#/$defs/ModelFile'
+        title: Model Files
+        type: object
+      measurement_files:
+        items:
+          type: string
+        title: Measurement Files
+        type: array
+      condition_files:
+        items:
+          type: string
+        title: Condition Files
+        type: array
+      observable_files:
+        items:
+          type: string
+        title: Observable Files
+        type: array
+      visualization_files:
+        default: null
+        items:
+          type: string
+        title: Visualization Files
+        type: array
+      mapping_file:
+        default: null
+        title: Mapping File
+        type: string
+    required:
+    - model_files
+    - measurement_files
+    - condition_files
+    - observable_files
+    title: ProblemYaml
+    type: object
+description: PEtab parameter estimation problem config file schema.
+properties:
+  format_version:
+    pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
+    title: Format Version
+    type: string
+  parameter_file:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    title: Parameter File
+  problems:
+    items:
+      $ref: '#/$defs/ProblemYaml'
+    title: Problems
+    type: array
+  extensions:
+    default: null
+    patternProperties:
+      ^[a-zA-Z_]\\w*$:
+        $ref: '#/$defs/ExtensionYaml'
+    title: Extensions
+    type: object
+required:
+- format_version
+- parameter_file
+- problems
+title: PetabYaml
+type: object
