@@ -28,6 +28,11 @@ class YamlStandard(JsonStandard):
         # TODO handle custom `model_dump` kwargs?
         return yaml.safe_dump(data.model_dump(), **self.dump_kwargs)
 
+    def get_schema(self) -> str:
+        """See :class:`Standard`."""
+        schema = super().get_schema(to_json=False)
+        return yaml.safe_dump(schema, **self.dump_kwargs)
+
     def load_data(self, filename: str) -> BaseModel:
         """See :class:`Standard`."""
         with open(filename) as f:

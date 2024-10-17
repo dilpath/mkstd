@@ -29,16 +29,21 @@ class JsonStandard(Standard):
     ) -> None:
         super().__init__(*args, **kwargs)
 
-        self.dump_kwargs = JsonStandard.default_dump_kwargs
+        self.dump_kwargs = self.default_dump_kwargs
         if dump_kwargs is not None:
             self.dump_kwargs = dump_kwargs
 
-    def get_schema(self) -> str:
-        """See :class:`Standard`."""
-        return json.dumps(
-            self.model.model_json_schema(mode="serialization"),
-            **self.dump_kwargs,
-        )
+    def get_schema(self, to_json: bool = True) -> str | dict:
+        """See :class:`Standard`.
+
+        Args:
+            to_json:
+                Whether to convert the schema `dict` to a JSON string.
+        """
+        schema = self.model.model_json_schema(mode="serialization")
+        if to_json:
+            return json.dumps(schema, **self.dump_kwargs)
+        return schema
 
     def format_data(self, data: BaseModel) -> str:
         """See :class:`Standard`."""
