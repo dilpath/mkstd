@@ -94,4 +94,4 @@ class MLModels(BaseModel):
 PetabScimlStandard = YamlStandard(model=MLModels)
 
 if __name__ == "__main__":
-    PetabScimlStandard.save_schema("output/schema.json")
+    PetabScimlStandard.save_schema("output/schema.yaml")
