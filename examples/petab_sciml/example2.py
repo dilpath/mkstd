@@ -32,6 +32,8 @@ PetabScimlStandard.save_data(
 loaded_petab_sciml_models = PetabScimlStandard.load_data("data2/models0.yaml")
 net1 = loaded_petab_sciml_models.models[0].to_pytorch_module()
 
+print(net1.code)  # noqa: T201
+
 # Store the pytorch module to disk again and verify that the round-trip was successful
 mlmodel1 = MLModel.from_pytorch_module(
     module=net1, mlmodel_id="model1", inputs=[Input(input_id="input1")]

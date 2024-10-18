@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import inspect
+import re
 
 import torch.fx
 import torch.nn as nn
@@ -43,6 +45,67 @@ class Node(BaseModel):
     kwargs: dict | None = Field(default=None)
 
 
+def extract_module_args(module: nn.Module) -> dict:
+    """Get the arguments used to create the module.
+
+    N.B.: currently, all arguments must be Python literals compatible
+    with `ast.literal_eval`, and cannot contain the character `=`.
+
+    Args:
+        module:
+            The model.
+
+    Returns:
+        The arguments, as keyword arguments.
+    """
+    # Stage 1: get all arguments in the intersection of `__constants__` and
+    # `__init__`
+    init_arg_names = set(inspect.signature(module.__init__).parameters)
+    constant_init_args = {
+        arg: getattr(module, arg)
+        for arg in module.__constants__
+        if arg in init_arg_names
+    }
+
+    # Stage 2: add all arguments suggested in the `__repr__
+    ## Get names of module positional arguments
+    arg_names = []
+    for arg in inspect.signature(module.__init__).parameters.values():
+        if arg.name == "self":
+            continue
+        if arg.default != inspect.Parameter.empty:
+            continue
+        if arg.kind not in [
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        ]:
+            continue
+        arg_names.append(arg.name)
+
+    ## Extract all arguments
+    class_name, all_args_str = re.match(
+        r"(\w+)\((.*)\)", repr(module).strip()
+    ).groups()
+
+    ## All positional arguments exist
+    args_str_list = []
+    for arg_str in all_args_str.split(","):
+        if "=" in arg_str:
+            break
+        args_str_list.append(arg_str)
+    args = []
+    if args_str_list:
+        args = ast.literal_eval(",".join(args_str_list))
+
+    kwargs = {
+        kw: ast.literal_eval(arg_str.strip())
+        for kw, arg_str in re.findall(
+            r"(\w*)=([^=]*)(?=,\s*\w+=|$)", all_args_str
+        )
+    }
+    return constant_init_args | dict(zip(arg_names, args)) | kwargs
+
+
 class MLModel(BaseModel):
     """An easy-to-use format to specify simple deep ML models.
 
@@ -69,18 +132,10 @@ class MLModel(BaseModel):
             if not layer_id:
                 # first entry is all modules combined
                 continue
-            supported_args = [
-                arg
-                for arg in layer_module.__constants__
-                if arg
-                in set(inspect.signature(layer_module.__init__).parameters)
-            ]
             layer = Layer(
                 layer_id=layer_id,
                 layer_type=type(layer_module).__name__,
-                args={
-                    arg: getattr(layer_module, arg) for arg in supported_args
-                },
+                args=extract_module_args(module=layer_module),
             )
             layers.append(layer)
             layer_ids.append(layer_id)

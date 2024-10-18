@@ -47,16 +47,19 @@ models:
     args:
       in_features: 400
       out_features: 120
+      bias: true
   - layer_id: fc2
     layer_type: Linear
     args:
       in_features: 120
       out_features: 84
+      bias: true
   - layer_id: fc3
     layer_type: Linear
     args:
       in_features: 84
       out_features: 10
+      bias: true
   forward:
   - name: input_1
     op: placeholder
