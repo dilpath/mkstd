@@ -1,0 +1,401 @@
+$defs:
+  Author:
+    description: The author of a result.
+    properties:
+      name:
+        title: Name
+        type: string
+      affiliation:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        title: Affiliation
+      contribution:
+        anyOf:
+        - items:
+            type: string
+          type: array
+        - type: 'null'
+        default: null
+        title: Contribution
+      other_contributions:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        title: Other Contributions
+      funding:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        title: Funding
+    required:
+    - name
+    title: Author
+    type: object
+  Component:
+    additionalProperties: true
+    description: 'The state of a single component.
+
+
+      e.g. a system package (id/version), a tool (id/version), or a method (name,
+      hyperparameters)'
+    properties:
+      id:
+        title: Id
+        type: string
+      version:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        title: Version
+      value:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        title: Value
+    required:
+    - id
+    title: Component
+    type: object
+  GenericOutput:
+    additionalProperties: true
+    description: The output of a computation.
+    properties: {}
+    title: GenericOutput
+    type: object
+  IndividualProfileOutput:
+    description: The profile result for a single parameter.
+    properties:
+      parameter_trace:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (trace_length, n_parameters)'
+        title: Parameter Trace
+      objective_trace:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (trace_length)'
+        title: Objective Trace
+      confidence_interval:
+        anyOf:
+        - maxItems: 2
+          minItems: 2
+          prefixItems:
+          - type: number
+          - type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: Confidence interval for the profile
+        title: Confidence Interval
+    title: IndividualProfileOutput
+    type: object
+  McmcSampleOutput:
+    description: 'Sampling result for a single sampling execution with one or more
+      chains.
+
+
+      TODO split into separate types: `SingleChainMcmcOutput` and `MultiChainMcmcOutput`'
+    properties:
+      sampler:
+        $ref: '#/$defs/Component'
+      settings:
+        description: Settings for the sampler
+        items:
+          $ref: '#/$defs/Component'
+        title: Settings
+        type: array
+      startpoints:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, n_parameters) or (n_parameters)'
+        title: Startpoints
+      samples:
+        anyOf:
+        - items:
+            items:
+              items:
+                type: number
+              type: array
+            type: array
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, n_samples, n_parameters) or (n_samples,
+          n_parameters)'
+        title: Samples
+      parameter_trace:
+        anyOf:
+        - items:
+            items:
+              items:
+                type: number
+              type: array
+            type: array
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: Dimension (n_chains, trace_length, n_parameters) or (trace_length,
+          n_parameters)
+        title: Parameter Trace
+      log_posterior_trace:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, trace_length) or (trace_length)'
+        title: Log Posterior Trace
+      number_of_chains:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Number of chains used in the sampling
+        title: Number Of Chains
+      burn_in:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Number of burn-in samples
+        title: Burn In
+      thinning:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Thinning factor
+        title: Thinning
+    required:
+    - sampler
+    - settings
+    title: McmcSampleOutput
+    type: object
+  OptimizeOutput:
+    description: The result of a single optimization.
+    properties:
+      id:
+        description: Unique identifier for the optimization result. Multi-start local
+          optimizations should be separated for each startpoint.
+        title: Id
+        type: string
+      optimizer:
+        $ref: '#/$defs/Component'
+        description: Metadata on the optimizer used.
+      startpoint:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        description: 'Starting point(s) for the optimization. May be multiple incase
+          of swarm based optimizers. Dimension: (n_parameters) | (n_starts, n_parameters)'
+        title: Startpoint
+      endpoint:
+        description: 'End point of the optimization. Dimension: (n_parameters)'
+        items:
+          type: number
+        title: Endpoint
+        type: array
+      fval:
+        description: Final value of the objective function.
+        title: Fval
+        type: number
+      fval0:
+        anyOf:
+        - type: number
+        - type: 'null'
+        default: null
+        description: Initial value of the objective function.
+        title: Fval0
+      grad:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Gradient at the endpoint. Dimension: (n_parameters)'
+        title: Grad
+      hess:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Hessian at the endpoint. Dimension: (n_parameters, n_parameters)'
+        title: Hess
+      history:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Link to file of History of the optimization process
+        title: History
+    required:
+    - id
+    - optimizer
+    - startpoint
+    - endpoint
+    - fval
+    title: OptimizeOutput
+    type: object
+  Problem:
+    description: The PEtab problem.
+    properties:
+      location:
+        title: Location
+        type: string
+    required:
+    - location
+    title: Problem
+    type: object
+  ProfileOutput:
+    properties:
+      method:
+        $ref: '#/$defs/Component'
+      settings:
+        items:
+          $ref: '#/$defs/Component'
+        title: Settings
+        type: array
+      startpoint:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: Parameter vector from which the profile was started
+        title: Startpoint
+      confidence_level:
+        anyOf:
+        - type: number
+        - type: 'null'
+        default: null
+        description: Confidence level for the profile
+        title: Confidence Level
+      profiles:
+        additionalProperties:
+          $ref: '#/$defs/IndividualProfileOutput'
+        title: Profiles
+        type: object
+    required:
+    - method
+    - settings
+    - profiles
+    title: ProfileOutput
+    type: object
+  Task:
+    description: A task result.
+    properties:
+      id:
+        title: Id
+        type: string
+      date:
+        title: Date
+        type: string
+      tool_id:
+        title: Tool Id
+        type: string
+      output:
+        anyOf:
+        - $ref: '#/$defs/ProfileOutput'
+        - $ref: '#/$defs/McmcSampleOutput'
+        - $ref: '#/$defs/OptimizeOutput'
+        - type: 'null'
+        default: null
+        title: Output
+      other_output:
+        anyOf:
+        - $ref: '#/$defs/GenericOutput'
+        - type: 'null'
+        default: null
+    required:
+    - id
+    - date
+    - tool_id
+    title: Task
+    type: object
+description: Specify the result structure.
+properties:
+  version:
+    title: Version
+    type: string
+  license:
+    title: License
+    type: string
+  problem:
+    $ref: '#/$defs/Problem'
+  tools:
+    items:
+      type: string
+    title: Tools
+    type: array
+  authors:
+    items:
+      $ref: '#/$defs/Author'
+    title: Authors
+    type: array
+  tasks:
+    items:
+      $ref: '#/$defs/Task'
+    title: Tasks
+    type: array
+required:
+- version
+- license
+- problem
+- tools
+- authors
+- tasks
+title: Result
+type: object
