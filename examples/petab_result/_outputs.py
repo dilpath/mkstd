@@ -1,3 +1,9 @@
+"""
+TODO: currently very rough drafts of classes. e.g. need to:
+    - find neat way of supporting both single-start and multi-start results
+      - coerce all single-start results into multi-start array?
+"""
+
 from __future__ import annotations
 
 
@@ -14,15 +20,8 @@ class Output(BaseModel):
 class GenericOutput(Output, extra="allow"):
     """The output of a computation."""
 
-
 class OptimizeOutput(Output):
     """The result of a single optimization."""
-
-    id: str = Field(
-        description="Unique identifier for the optimization result. "
-        "Multi-start local optimizations should be separated for "
-        "each startpoint."
-    )
     optimizer: Component = Field(
         description="Metadata on the optimizer used."
     )
@@ -50,6 +49,41 @@ class OptimizeOutput(Output):
         description="Link to file of History of the optimization process",
         # FIXME should actually be the file itself, embedded here, as an `OptimizeHistoryOutput` object...
     )
+
+class SingleStartOptimizeOutput(Output):
+    """The result of a single optimization."""
+    id: str
+    startpoint: list[float] | list[list[float]] | None = Field(
+        default=None,
+        description="Starting point(s) for the optimization. May be multiple in"
+        "case of swarm based optimizers. Dimension: (n_parameters) | (n_starts, n_parameters)"
+    )
+    endpoint: list[float] = Field(
+        description="End point of the "
+        "optimization. Dimension: (n_parameters)"
+    )
+    fval: float = Field(description="Final value of the objective function.")
+    fval0: float | None = Field(
+        None, description="Initial value of the objective function."
+    )
+    grad: list[float] | None = Field(
+        None, description="Gradient at the endpoint. Dimension: (n_parameters)"
+    )
+    hess: list[list[float]] | None = Field(
+        None,
+        description="Hessian at the endpoint. Dimension: (n_parameters, n_parameters)",
+    )
+    history: str | None = Field(
+        None,
+        description="Link to file of History of the optimization process",
+        # FIXME should actually be the file itself, embedded here, as an `OptimizeHistoryOutput` object...
+    )
+
+
+class MultiStartOptimizeOutput(Output):
+    optimizer: Component
+    starts: list[SingleStartOptimizeOutput]
+
 
 
 class IndividualProfileOutput(Output):

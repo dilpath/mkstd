@@ -1,0 +1,81 @@
+version: '1'
+license: MIT
+problem:
+  location: path/to/problem.yaml
+tools:
+  pyPESTO__0-5:
+    name: pyPESTO
+    author: The pyPESTO developers.
+    version: '0.5'
+    dependencies:
+    - id: Python
+      version: '3.13'
+      value: null
+    - id: SciPy
+      version: 2.0.0
+      value: null
+    software:
+    - id: OS
+      version: Ubuntu 24.04
+      value: null
+    hardware:
+    - id: CPU
+      version: null
+      value: null
+      brand: Intel
+      model: Core Ultra 9 185H
+authors:
+- name: Paul Jonas Jost
+  affiliations:
+  - University of Bonn
+  contributions: null
+  other_contributions: null
+  funding_sources: null
+- name: Domagoj Doresic
+  affiliations: null
+  contributions:
+  - optimize1
+  other_contributions: null
+  funding_sources: null
+- name: Dilan Pathirana
+  affiliations: null
+  contributions: null
+  other_contributions:
+  - mkstd
+  funding_sources: null
+tasks:
+  optimize1:
+    date: '2024-10-10'
+    tool_id: pyPESTO__0-5
+    output:
+      optimizer:
+        id: pypesto_scipy_lbfgsb
+        version: null
+        value: null
+        tool: pyPESTO__0-5
+        settings: SciPy L-BFGS-B optimizer
+        other: Gradients computed by forward sensitivity analysis with AMICI.
+      starts:
+      - id: start1
+        startpoint: null
+        endpoint:
+        - 0.5
+        - 0.2
+        - 0.1
+        fval: 100.0
+        fval0: null
+        grad: null
+        hess: null
+        history: null
+      - id: start2
+        startpoint: null
+        endpoint:
+        - 0.55
+        - 0.21
+        - 0.1
+        fval: 105.0
+        fval0: null
+        grad: null
+        hess: null
+        history: null
+    other_output: null

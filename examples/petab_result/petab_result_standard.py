@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from mkstd import YamlStandard, Hdf5Standard, JsonStandard, XmlStandard
 
-from _outputs import ProfileOutput, McmcSampleOutput, OptimizeOutput, GenericOutput, Output
+from _outputs import ProfileOutput, McmcSampleOutput, OptimizeOutput, GenericOutput, Output, MultiStartOptimizeOutput, SingleStartOptimizeOutput
 
 
 class Component(BaseModel, extra="allow"):
@@ -25,12 +25,13 @@ class Tool(BaseModel, extra="allow"):
     """The full tool name (not necessarily a valid PEtab ID."""
     author: str
     """The author/owner of the tool."""
+    version: str
     dependencies: list[Component]
     """Significant dependencies required to reproduce a result with a tool."""
     software: list[Component]
-    """Other information on software used to create a result, less critical for reproducibility. e.g. 
+    """Other information on software used to create a result, less critical for reproducibility.
+    e.g. operating system
     """
-    """TODO specific suggestions, e.g. python version, CPU model, ..."""
     hardware: list[Component]
 
 
@@ -43,21 +44,19 @@ class Problem(BaseModel):
 class Author(BaseModel):
     """The author of a result."""
     name: str
-    affiliation: str | None = Field(default=None)
-    contribution: list[str] | None = Field(default=None)
-    """The valid PEtab IDs of the tasks this author contributed to."""
-    other_contributions: str | None = Field(default=None)
-    funding: str | None = Field(default=None)
+    affiliations: list[str] | None = Field(default=None)
+    contributions: list[str] | None = Field(default=None)
+    """The IDs of the tasks this author contributed to."""
+    other_contributions: list[str] | None = Field(default=None)
+    funding_sources: list[str] | None = Field(default=None)
 
 
 class Task(BaseModel):
     """A task result."""
-    id: str
-    """A unique valid PEtab ID for this task. Not the method name!"""
     date: str
     tool_id: str
     """Corresponds to a `Result.tools` entry."""
-    output: ProfileOutput | McmcSampleOutput | OptimizeOutput | None = Field(default=None)
+    output: ProfileOutput | McmcSampleOutput | SingleStartOptimizeOutput | MultiStartOptimizeOutput | None = Field(default=None)
     """The output from a specific task, in a format defined in PEtab Result."""
     other_output: GenericOutput | None = Field(default=None)
     """Other output, not (yet) defined in PEtab Result."""
@@ -69,10 +68,11 @@ class Result(BaseModel):
     """The PEtab Result version."""
     license: str
     problem: Problem
-    tools: list[str, Tool]
-    """Keys are a valid PEtab ID for the tool"""
+    tools: dict[str, Tool]
+    """Keys are user-defined IDs for the tool (must be a valid PEtab ID)"""
     authors: list[Author]
-    tasks: list[Task]
+    tasks: dict[str, Task]
+    """Keys are user-defined IDs for the tasks (must be a valid PEtab ID)"""
 
 
 PetabResultHdf5Standard = Hdf5Standard(model=Result)
