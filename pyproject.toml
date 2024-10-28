@@ -25,6 +25,13 @@ dependencies = [
     # Format: HDF5
     # TODO try itsh5py for valid PyPI dependency?
     # "hdfdict@git+https://github.com/SiggiGue/hdfdict",
+    # for patching hdfdict
+    #"wrapt",
+    # TODO currently directly embedding hdfdict and patching it,
+    # at mkstd/standards/hdfdict. Hence, its requirements are here
+    #"h5py-wrapper>=1.1",
+    # TODO possible switch to h5pywrappers, which has a JSON save/load feature
+    "h5py>=3.11",
 
     # Format: YAML
     "pyyaml>=6.0.2",

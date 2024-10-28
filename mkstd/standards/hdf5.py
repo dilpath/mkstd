@@ -1,18 +1,10 @@
 import json
 from typing import Any
 
-# TODO quickfix for hdfdict
-import numpy as np
 from pydantic import BaseModel
 
 from .standard import Standard
-
-np.string_ = np.bytes_
-
-try:
-    import hdfdict  # noqa: E402
-except ImportError:
-    hdfdict = None
+from .hdfdict import hdfdict
 
 
 class Hdf5Standard(Standard):
