@@ -1,4 +1,18 @@
-from petab_result_standard import Result, Problem, Tool, MultiStartOptimizeOutput, SingleStartOptimizeOutput, Component, PetabResultYamlStandard, Author, Task
+from petab_result_standard import (
+    Result,
+    Problem,
+    Tool,
+    MultiStartOptimizeOutput,
+    SingleStartOptimizeOutput,
+    Component,
+    PetabResultYamlStandard,
+    PetabResultJsonStandard,
+    PetabResultHdf5Standard,
+    Author,
+    Task,
+)
+
+from mkstd.standards.hdf5 import hdfdict
 
 
 data = {
@@ -42,20 +56,30 @@ data = {
 # Create a result object, save it to disk.
 result = Result.parse_obj(data)
 PetabResultYamlStandard.save_data(data=result, filename="data/result0.yaml")
+PetabResultHdf5Standard.save_data(data=result, filename="data/result0.hdf5")
+PetabResultJsonStandard.save_data(data=result, filename="data/result0.json")
 
 # Read the stored result from disk, reconstruct the result
-loaded_result = PetabResultYamlStandard.load_data("data/result0.yaml")
+loaded_result_yaml = PetabResultYamlStandard.load_data("data/result0.yaml")
+loaded_result_hdf5 = PetabResultHdf5Standard.load_data("data/result0.hdf5")
 
 # Write the result to disk again and verify that the round-trip was successful (disk and memory)
-PetabResultYamlStandard.save_data(data=loaded_result, filename="data/result1.yaml")
+PetabResultYamlStandard.save_data(data=loaded_result_yaml, filename="data/result1.yaml")
+PetabResultHdf5Standard.save_data(data=loaded_result_hdf5, filename="data/result1.hdf5")
 
 with open("data/result0.yaml") as f:
-    data0 = f.read()
+    data_yaml0 = f.read()
 with open("data/result1.yaml") as f:
-    data1 = f.read()
+    data_yaml1 = f.read()
+data_hdf50 = hdfdict.load("data/result0.hdf5", lazy=False)
+data_hdf51 = hdfdict.load("data/result1.hdf5", lazy=False)
 
-if not data0 == data1:
-    raise ValueError("The round-trip of saving the PEtab Result to disk failed.")
+if not data_yaml0 == data_yaml1:
+    raise ValueError("The round-trip of saving the PEtab Result to YAML failed.")
+if not data_hdf50 == data_hdf51:
+    raise ValueError("The round-trip of saving the PEtab Result to HDF5 failed.")
 
-if not result == loaded_result:
-    raise ValueError("The round-trip of reconstructing the PEtab Result failed.")
+if not result == loaded_result_yaml:
+    raise ValueError("The round-trip of reconstructing the PEtab Result from YAML failed.")
+if not result == loaded_result_hdf5:
+    raise ValueError("The round-trip of reconstructing the PEtab Result from HDF5 failed.")

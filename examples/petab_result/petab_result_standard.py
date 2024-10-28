@@ -67,13 +67,12 @@ class Result(BaseModel):
     version: str
     """The PEtab Result version."""
     license: str
-    problem: Problem
+    problem: dict[str, Problem] | Problem
     tools: dict[str, Tool]
     """Keys are user-defined IDs for the tool (must be a valid PEtab ID)"""
-    authors: list[Author]
+    authors: list[Author] | Author
     tasks: dict[str, Task]
     """Keys are user-defined IDs for the tasks (must be a valid PEtab ID)"""
-
 
 PetabResultHdf5Standard = Hdf5Standard(model=Result)
 PetabResultJsonStandard = JsonStandard(model=Result)

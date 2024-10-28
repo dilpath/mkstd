@@ -7,19 +7,7 @@
                     "title": "Name",
                     "type": "string"
                 },
-                "affiliation": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "title": "Affiliation"
-                },
-                "contribution": {
+                "affiliations": {
                     "anyOf": [
                         {
                             "items": {
@@ -32,12 +20,30 @@
                         }
                     ],
                     "default": null,
-                    "title": "Contribution"
+                    "title": "Affiliations"
+                },
+                "contributions": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Contributions"
                 },
                 "other_contributions": {
                     "anyOf": [
                         {
-                            "type": "string"
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
                         },
                         {
                             "type": "null"
@@ -46,17 +52,20 @@
                     "default": null,
                     "title": "Other Contributions"
                 },
-                "funding": {
+                "funding_sources": {
                     "anyOf": [
                         {
-                            "type": "string"
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "title": "Funding"
+                    "title": "Funding Sources"
                 }
             },
             "required": [
@@ -349,17 +358,103 @@
             "title": "McmcSampleOutput",
             "type": "object"
         },
-        "OptimizeOutput": {
+        "MultiStartOptimizeOutput": {
+            "properties": {
+                "optimizer": {
+                    "$ref": "#/$defs/Component"
+                },
+                "starts": {
+                    "items": {
+                        "$ref": "#/$defs/SingleStartOptimizeOutput"
+                    },
+                    "title": "Starts",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "optimizer",
+                "starts"
+            ],
+            "title": "MultiStartOptimizeOutput",
+            "type": "object"
+        },
+        "Problem": {
+            "description": "The PEtab problem.",
+            "properties": {
+                "location": {
+                    "title": "Location",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "title": "Problem",
+            "type": "object"
+        },
+        "ProfileOutput": {
+            "properties": {
+                "method": {
+                    "$ref": "#/$defs/Component"
+                },
+                "settings": {
+                    "items": {
+                        "$ref": "#/$defs/Component"
+                    },
+                    "title": "Settings",
+                    "type": "array"
+                },
+                "startpoint": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "number"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Parameter vector from which the profile was started",
+                    "title": "Startpoint"
+                },
+                "confidence_level": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Confidence level for the profile",
+                    "title": "Confidence Level"
+                },
+                "profiles": {
+                    "additionalProperties": {
+                        "$ref": "#/$defs/IndividualProfileOutput"
+                    },
+                    "title": "Profiles",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "method",
+                "settings",
+                "profiles"
+            ],
+            "title": "ProfileOutput",
+            "type": "object"
+        },
+        "SingleStartOptimizeOutput": {
             "description": "The result of a single optimization.",
             "properties": {
                 "id": {
-                    "description": "Unique identifier for the optimization result. Multi-start local optimizations should be separated for each startpoint.",
                     "title": "Id",
                     "type": "string"
-                },
-                "optimizer": {
-                    "$ref": "#/$defs/Component",
-                    "description": "Metadata on the optimizer used."
                 },
                 "startpoint": {
                     "anyOf": [
@@ -377,8 +472,12 @@
                                 "type": "array"
                             },
                             "type": "array"
+                        },
+                        {
+                            "type": "null"
                         }
                     ],
+                    "default": null,
                     "description": "Starting point(s) for the optimization. May be multiple incase of swarm based optimizers. Dimension: (n_parameters) | (n_starts, n_parameters)",
                     "title": "Startpoint"
                 },
@@ -459,92 +558,15 @@
             },
             "required": [
                 "id",
-                "optimizer",
-                "startpoint",
                 "endpoint",
                 "fval"
             ],
-            "title": "OptimizeOutput",
-            "type": "object"
-        },
-        "Problem": {
-            "description": "The PEtab problem.",
-            "properties": {
-                "location": {
-                    "title": "Location",
-                    "type": "string"
-                }
-            },
-            "required": [
-                "location"
-            ],
-            "title": "Problem",
-            "type": "object"
-        },
-        "ProfileOutput": {
-            "properties": {
-                "method": {
-                    "$ref": "#/$defs/Component"
-                },
-                "settings": {
-                    "items": {
-                        "$ref": "#/$defs/Component"
-                    },
-                    "title": "Settings",
-                    "type": "array"
-                },
-                "startpoint": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "number"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Parameter vector from which the profile was started",
-                    "title": "Startpoint"
-                },
-                "confidence_level": {
-                    "anyOf": [
-                        {
-                            "type": "number"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null,
-                    "description": "Confidence level for the profile",
-                    "title": "Confidence Level"
-                },
-                "profiles": {
-                    "additionalProperties": {
-                        "$ref": "#/$defs/IndividualProfileOutput"
-                    },
-                    "title": "Profiles",
-                    "type": "object"
-                }
-            },
-            "required": [
-                "method",
-                "settings",
-                "profiles"
-            ],
-            "title": "ProfileOutput",
+            "title": "SingleStartOptimizeOutput",
             "type": "object"
         },
         "Task": {
             "description": "A task result.",
             "properties": {
-                "id": {
-                    "title": "Id",
-                    "type": "string"
-                },
                 "date": {
                     "title": "Date",
                     "type": "string"
@@ -562,7 +584,10 @@
                             "$ref": "#/$defs/McmcSampleOutput"
                         },
                         {
-                            "$ref": "#/$defs/OptimizeOutput"
+                            "$ref": "#/$defs/SingleStartOptimizeOutput"
+                        },
+                        {
+                            "$ref": "#/$defs/MultiStartOptimizeOutput"
                         },
                         {
                             "type": "null"
@@ -584,11 +609,59 @@
                 }
             },
             "required": [
-                "id",
                 "date",
                 "tool_id"
             ],
             "title": "Task",
+            "type": "object"
+        },
+        "Tool": {
+            "additionalProperties": true,
+            "description": "A tool used to create a result.",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "author": {
+                    "title": "Author",
+                    "type": "string"
+                },
+                "version": {
+                    "title": "Version",
+                    "type": "string"
+                },
+                "dependencies": {
+                    "items": {
+                        "$ref": "#/$defs/Component"
+                    },
+                    "title": "Dependencies",
+                    "type": "array"
+                },
+                "software": {
+                    "items": {
+                        "$ref": "#/$defs/Component"
+                    },
+                    "title": "Software",
+                    "type": "array"
+                },
+                "hardware": {
+                    "items": {
+                        "$ref": "#/$defs/Component"
+                    },
+                    "title": "Hardware",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "name",
+                "author",
+                "version",
+                "dependencies",
+                "software",
+                "hardware"
+            ],
+            "title": "Tool",
             "type": "object"
         }
     },
@@ -603,28 +676,46 @@
             "type": "string"
         },
         "problem": {
-            "$ref": "#/$defs/Problem"
+            "anyOf": [
+                {
+                    "additionalProperties": {
+                        "$ref": "#/$defs/Problem"
+                    },
+                    "type": "object"
+                },
+                {
+                    "$ref": "#/$defs/Problem"
+                }
+            ],
+            "title": "Problem"
         },
         "tools": {
-            "items": {
-                "type": "string"
+            "additionalProperties": {
+                "$ref": "#/$defs/Tool"
             },
             "title": "Tools",
-            "type": "array"
+            "type": "object"
         },
         "authors": {
-            "items": {
-                "$ref": "#/$defs/Author"
-            },
-            "title": "Authors",
-            "type": "array"
+            "anyOf": [
+                {
+                    "items": {
+                        "$ref": "#/$defs/Author"
+                    },
+                    "type": "array"
+                },
+                {
+                    "$ref": "#/$defs/Author"
+                }
+            ],
+            "title": "Authors"
         },
         "tasks": {
-            "items": {
+            "additionalProperties": {
                 "$ref": "#/$defs/Task"
             },
             "title": "Tasks",
-            "type": "array"
+            "type": "object"
         }
     },
     "required": [
