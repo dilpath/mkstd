@@ -20,7 +20,8 @@ dependencies = [
     "pydantic>=2.7.4",
 
     # Type: array
-    #"pydantic_numpy>=6.0.0",
+    "pydantic_numpy",
+    #"pydantic_numpy>=6.0.0",  # disabled while we still support numpyv1
 
     # Format: HDF5
     # TODO try itsh5py for valid PyPI dependency?
@@ -48,7 +49,6 @@ dev = ["black", "isort", "pytest", "pre-commit>=3.8.0"]
 # for use with libroadrunner until numpyv2 is supported there.
 # https://github.com/sys-bio/roadrunner/pull/1236
 numpyv1 = ["pydantic_numpy<6", "numpy<2"]
-numpyv2 = ["pydantic_numpy>=6", "numpy>=2"]
 
 [project.urls]
 Homepage = "https://github.com/dilpath/mkstd"

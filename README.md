@@ -10,6 +10,7 @@ pip install mkstd
 # For HDF5 support
 pip install hdfdict@git+https://github.com/SiggiGue/hdfdict
 ```
+For environments requiring `numpy<2`, replace `mkstd` with `mkstd[numpyv1]` above.
 
 # Intended use
 `mkstd` is intended to be used at two stages of data management. An example of these stages is provided in [](https://github/dilpath/mkstd/examples/libssr/ssr_data.py).
