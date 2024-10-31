@@ -1,4 +1,5 @@
 import inspect
+import typing
 from functools import reduce
 from operator import mul
 from typing import Annotated, Any, Iterable
@@ -180,6 +181,9 @@ def is_array_type(type_: type) -> bool:
         `True` if `type_` is consistent with the return value of
         :func:`get_array_type`, else `False`.
     """
-    if inspect.isclass(type_) and type_.__name__ == "ndarray":
+    if (
+        inspect.isclass(typing.get_origin(type_))
+        and type_.__name__ == "ndarray"
+    ):
         return True
     return False
