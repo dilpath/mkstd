@@ -228,3 +228,10 @@ PetabScimlStandard = YamlStandard(model=MLModels)
 
 if __name__ == "__main__":
     PetabScimlStandard.save_schema("standard/schema.yaml")
+
+    ### DELETE ME
+    from mkstd import JsonStandard
+
+    PetabScimlJsonStandard = JsonStandard(model=MLModels)
+    PetabScimlJsonStandard.save_schema("standard/schema.json")
+    ### END DELETE ME
