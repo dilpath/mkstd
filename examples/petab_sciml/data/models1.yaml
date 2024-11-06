@@ -23,6 +23,7 @@ models:
       kernel_size:
       - 5
       - 5
+      bias: true
   - layer_id: conv2
     layer_type: Conv2d
     args:
@@ -42,6 +43,7 @@ models:
       kernel_size:
       - 5
       - 5
+      bias: true
   - layer_id: fc1
     layer_type: Linear
     args:

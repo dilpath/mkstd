@@ -23,6 +23,7 @@ models:
       kernel_size:
       - 5
       - 5
+      bias: true
   forward:
   - name: input_1
     op: placeholder

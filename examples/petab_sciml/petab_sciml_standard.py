@@ -45,6 +45,24 @@ class Node(BaseModel):
     kwargs: dict | None = Field(default=None)
 
 
+# Some customization needs to be manually extracted. These are things
+# that might only be present in `Module.__repr__` output conditionally,
+# usually because pytorch avoids outputting default values in its `__repr__`.
+# We will explicitly save them so tools don't need to find out what pytorch
+# defaults are.
+extra_repr = {
+    "Conv2d": {
+        "padding": lambda m: m.padding,
+        "dilation": lambda m: m.dilation,
+        # Missing from `Conv2d.__init__`
+        # "output_padding": lambda m: m.output_padding,
+        "groups": lambda m: m.groups,
+        "bias": lambda m: m.bias is not None,
+        "padding_mode": lambda m: m.padding_mode,
+    },
+}
+
+
 def extract_module_args(module: nn.Module) -> dict:
     """Get the arguments used to create the module.
 
@@ -103,7 +121,29 @@ def extract_module_args(module: nn.Module) -> dict:
             r"(\w*)=([^=]*)(?=,\s*\w+=|$)", all_args_str
         )
     }
-    return constant_init_args | dict(zip(arg_names, args)) | kwargs
+
+    # See `extra_repr`
+    extra = {
+        kw: getter(module)
+        for kw, getter in extra_repr.get(
+            get_module_layer_type(module), {}
+        ).items()
+    }
+
+    return constant_init_args | extra | dict(zip(arg_names, args)) | kwargs
+
+
+def get_module_layer_type(module: nn.Module) -> str:
+    """Get the layer type of a module.
+
+    Args:
+        module:
+            The module.
+
+    Returns:
+        The module type.
+    """
+    return type(module).__name__
 
 
 class MLModel(BaseModel):
@@ -134,7 +174,7 @@ class MLModel(BaseModel):
                 continue
             layer = Layer(
                 layer_id=layer_id,
-                layer_type=type(layer_module).__name__,
+                layer_type=get_module_layer_type(layer_module),
                 args=extract_module_args(module=layer_module),
             )
             layers.append(layer)
