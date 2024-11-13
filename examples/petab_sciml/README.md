@@ -20,4 +20,5 @@ and then verify that the two YAML files match.
 # TODO
 - [ ] check that the original pytorch forward call provides that same output as the reconstructed pytorch forward call, for some different inputs.
 - [ ] the following will have language-specific quirks that are currently not specified by pytorch as some attribute
-  - `torch.flatten` and `torch.nn.Flatten` default to C-style (row-major). Adding this information to `torch.nn.Flatten` layers will be easy. Adding it to `torch.flatten` "anonymous" layers will be harder but doable
+  - python and julia differ in their flatten commands (one is row-major, the other column-major). For consistency, we only support tensors up to dimension 5, and their order is explicitly Width Height Depth Channel Batch
+  - TODO: get input dimensions from first layer's input dimensions, and then annotate them with W,H,D,C,N up to the number of dimensions they have
