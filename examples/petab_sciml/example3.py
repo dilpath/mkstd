@@ -9,7 +9,7 @@ class Net1(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.layer1 = nn.BatchNorm3d(5)
-        self.layer2 = nn.BatchNorm2d(25)
+        self.layer2 = nn.InstanceNorm2d(25)
         self.layer3 = nn.BatchNorm1d(125)
         self.flatten1 = nn.Flatten(start_dim=1, end_dim=2)
         self.flatten2 = nn.Flatten(start_dim=1, end_dim=2)

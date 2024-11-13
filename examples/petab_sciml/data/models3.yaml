@@ -13,13 +13,13 @@ models:
       num_features: 5
       affine: true
   - layer_id: layer2
-    layer_type: BatchNorm2d
+    layer_type: InstanceNorm2d
     args:
-      track_running_stats: true
+      track_running_stats: false
       momentum: 0.1
       eps: 1.0e-05
       num_features: 25
-      affine: true
+      affine: false
   - layer_id: layer3
     layer_type: BatchNorm1d
     args:
