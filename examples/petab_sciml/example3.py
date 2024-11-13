@@ -33,5 +33,5 @@ mlmodel0 = MLModel.from_pytorch_module(
 )
 petab_sciml_models0 = PetabScimlStandard.model(models=[mlmodel0])
 PetabScimlStandard.save_data(
-    data=petab_sciml_models0, filename="data/models3.yaml"
+    data=petab_sciml_models0, filename="data3/models1.yaml"
 )
