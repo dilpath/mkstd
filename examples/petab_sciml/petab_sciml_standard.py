@@ -111,9 +111,7 @@ def extract_module_args(module: nn.Module) -> dict:
         if "=" in arg_str:
             break
         args_str_list.append(arg_str)
-    args = []
-    if args_str_list:
-        args = ast.literal_eval(",".join(args_str_list))
+    args = [ast.literal_eval(arg_str) for arg_str in args_str_list]
 
     kwargs = {
         kw: ast.literal_eval(arg_str.strip())
