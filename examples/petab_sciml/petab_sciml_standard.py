@@ -52,14 +52,36 @@ class Node(BaseModel):
 # defaults are.
 extra_repr = {
     "Conv2d": {
-        "padding": lambda m: m.padding,
-        "dilation": lambda m: m.dilation,
-        # Missing from `Conv2d.__init__`
+        # Missing from `Conv2d.__init__`: `output_padding`
         # "output_padding": lambda m: m.output_padding,
-        "groups": lambda m: m.groups,
-        "bias": lambda m: m.bias is not None,
-        "padding_mode": lambda m: m.padding_mode,
+        "__all__": ["padding", "dilation", "groups", "bias", "padding_mode"],
+        "getters": {
+            "bias": lambda m: m.bias is not None,
+        },
     },
+    "RNN": {
+        "__all__": [
+            "input_size",
+            "hidden_size",
+            "proj_size",
+            "num_layers",
+            "bias",
+            "batch_first",
+            "dropout",
+            "bidirectional",
+        ],
+        "getters": {},
+    },
+}
+
+extra_repr = {
+    module_id: {
+        attr: module_def["getters"].get(
+            attr, lambda m, attr=attr: getattr(m, attr)
+        )
+        for attr in module_def["__all__"]
+    }
+    for module_id, module_def in extra_repr.items()
 }
 
 
