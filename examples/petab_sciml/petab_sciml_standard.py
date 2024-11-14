@@ -128,12 +128,16 @@ def extract_module_args(module: nn.Module) -> dict:
     ).groups()
 
     ## All positional arguments exist
+    args = {}
     args_str_list = []
     for arg_str in all_args_str.split(","):
         if "=" in arg_str:
             break
         args_str_list.append(arg_str)
-    args = [ast.literal_eval(arg_str) for arg_str in args_str_list]
+    if args_str_list:
+        args = dict(
+            zip(arg_names, ast.literal_eval(",".join(args_str_list) + ","))
+        )
 
     kwargs = {
         kw: ast.literal_eval(arg_str.strip())
@@ -150,7 +154,7 @@ def extract_module_args(module: nn.Module) -> dict:
         ).items()
     }
 
-    return constant_init_args | extra | dict(zip(arg_names, args)) | kwargs
+    return constant_init_args | extra | args | kwargs
 
 
 def get_module_layer_type(module: nn.Module) -> str:
