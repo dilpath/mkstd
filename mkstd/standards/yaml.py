@@ -33,8 +33,8 @@ class YamlStandard(JsonStandard):
         schema = super().get_schema(to_json=False)
         return yaml.safe_dump(schema, **self.dump_kwargs)
 
-    def load_data(self, filename: str) -> BaseModel:
+    def _load_data(self, filename: str) -> dict[str, Any]:
         """See :class:`Standard`."""
         with open(filename) as f:
             data = yaml.safe_load(f)
-        return self.model.parse_obj(data)
+        return data

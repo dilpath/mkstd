@@ -74,14 +74,21 @@ class Standard(ABC):
             f.write(content)
 
     @abstractmethod
-    def load_data(self, filename: str) -> BaseModel:
+    def _load_data(self, filename: str) -> dict[str, Any]:
+        """Load data from the file format into a dictionary."""
+        pass
+
+    def load_data(self, filename: str, **kwargs: dict[str, Any]) -> BaseModel:
         """Load data from the file format.
 
         Args:
             filename:
                 The location where the data is stored.
+            **kwargs:
+                Private instance attributes.
 
         Returns:
             The data, as an instance of the data model.
         """
-        pass
+        data = self._load_data(filename=filename)
+        return self.model.model_validate({**data, **kwargs})

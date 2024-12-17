@@ -49,8 +49,8 @@ class JsonStandard(Standard):
         """See :class:`Standard`."""
         return data.model_dump_json(**self.dump_kwargs)
 
-    def load_data(self, filename: str) -> BaseModel:
+    def _load_data(self, filename: str) -> dict[str, Any]:
         """See :class:`Standard`."""
         with open(filename) as f:
             data = json.load(f)
-        return self.model.parse_obj(data)
+        return data
