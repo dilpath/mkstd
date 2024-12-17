@@ -1,3 +1,5 @@
+from typing import Any
+
 import oyaml as yaml
 from pydantic import BaseModel
 
