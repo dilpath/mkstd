@@ -214,12 +214,12 @@ class XmlStandard(Standard):
         etree = xs.encode(dump)
         return xmlschema.etree_tostring(etree)
 
-    def load_data(self, filename: str) -> BaseModel:
+    def _load_data(self, filename: str) -> dict[str, Any]:
         """See :class:`Standard`."""
         with open(filename) as f:
             data = xmlschema.XMLSchema(self.get_schema()).decode(f.read())
         _apply_deconverters(dump=data, model=self.model)
-        return self.model.parse_obj(data)
+        return data
 
 
 def _apply_converters(dump: dict[str, Any], model: type[BaseModel]) -> None:

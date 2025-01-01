@@ -49,7 +49,7 @@ class Hdf5Standard(Standard):
         """See :class:`Standard`."""
         hdfdict.dump(self.format_data(data), filename)
 
-    def load_data(self, filename: str) -> BaseModel:
+    def _load_data(self, filename: str) -> dict[str, Any]:
         """See :class:`Standard`."""
         data = hdfdict.load(filename)
-        return self.model.parse_obj(data)
+        return data
