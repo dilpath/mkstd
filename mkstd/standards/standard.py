@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 
 class Standard(ABC):
@@ -92,4 +92,6 @@ class Standard(ABC):
             The data, as an instance of the data model.
         """
         data = self._load_data(filename=filename)
+        if issubclass(self.model, RootModel):
+            data = {"root": data}
         return self.model.model_validate({**data, **kwargs})
