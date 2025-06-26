@@ -142,7 +142,7 @@ def list_to_array(list_: list) -> np.ndarray:
 
 
 def get_array_type(
-    dtype: type, dimensions: int, strict_dtype: bool = False
+    dtype: type | None = None, dimensions: int | None = None, strict_dtype: bool = False
 ) -> type:
     """Get a customized array type.
 
