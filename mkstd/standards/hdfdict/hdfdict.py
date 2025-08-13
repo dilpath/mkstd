@@ -65,6 +65,9 @@ def unpack_dataset(item):
 
     elif type_id == 'str':
         value = str(string_(value).astype(str))
+
+    elif not type_id and isinstance(value, bytes_):
+        value = value.decode()
     
     return value
 
