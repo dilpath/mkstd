@@ -33,6 +33,10 @@ class Leaf(BaseModel):
     labels: list[str] = []
     rows: list[dict[str, Any]] = []
     extra: dict[str, Any] = {}
+    # `Any`-typed, so pydantic cannot coerce bytes back to str for us: what
+    # comes out of the file is exactly what the reader gets
+    loose_labels: list[Any] = []
+    by_name: dict[str, Any] = {}
 
 
 class Root(BaseModel):
@@ -61,6 +65,8 @@ def _fixture() -> Root:
                 labels=["x", "y — z", ""],
                 rows=[{"k": 1, "s": "one"}, {"k": None, "s": ""}],
                 extra={"nested": {"deeper": [1, 2, 3]}, "none": None},
+                loose_labels=["x", "y — z", ""],
+                by_name={"labels": ["a", "b"], "grid": [["p", "q"], ["r", "s"]]},
             ),
             "b": Leaf(name="b"),
         },
@@ -115,6 +121,16 @@ def test_keys_with_slash_percent_dots_and_empty_survive() -> None:
         ".": 4,
         "..": 5,
     }
+
+
+def test_string_lists_come_back_as_str_not_bytes() -> None:
+    back = _roundtrip(_fixture())
+    leaf = back.leaves["a"]
+    assert leaf.loose_labels == ["x", "y — z", ""]
+    assert all(type(x) is str for x in leaf.loose_labels)
+    assert leaf.by_name["labels"] == ["a", "b"]
+    assert leaf.by_name["grid"] == [["p", "q"], ["r", "s"]]
+    assert type(leaf.by_name["grid"][1][0]) is str
 
 
 def test_none_bool_and_scalars_keep_their_types() -> None:

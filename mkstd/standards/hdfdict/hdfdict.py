@@ -60,6 +60,15 @@ def hdf_file(hdf, lazy=True, *args, **kwargs):
         yield hdf
 
 
+def _decode_strings(value):
+    """Decode bytes from h5py for a variable-length string dataset."""
+    if isinstance(value, bytes):
+        return value.decode('utf-8')
+    if isinstance(value, list):
+        return [_decode_strings(v) for v in value]
+    return value
+
+
 def unpack_dataset(item):
     """Reconstruct a hdfdict dataset.
     Only some special unpacking for yaml and datetime types.
@@ -87,10 +96,10 @@ def unpack_dataset(item):
         value = yaml.safe_load(value.decode())
     
     elif type_id == 'list':
-        value = np.asarray(value).tolist()
+        value = _decode_strings(np.asarray(value).tolist())
 
     elif type_id == 'tuple':
-        value = tuple(np.asarray(value).tolist())
+        value = tuple(_decode_strings(np.asarray(value).tolist()))
 
     elif type_id == 'str':
         value = value.decode('utf-8') if isinstance(value, bytes) else str(value)
